@@ -136,7 +136,7 @@ section > *{width:100%}
    2. QUOTE / AYAT  (latar olive gelap)
    ============================================================ */
 #quote{background:linear-gradient(rgba(23,28,17,.30),rgba(23,28,17,.30)),url('quote.jpg') top center/cover;min-height:480px}   /* TINGGI DIKUNCI: 480px */
-#quote .script{font-family:var(--font-script);font-size:36px;color:var(--gold);margin-bottom:6px;text-shadow:0 2px 12px rgba(0,0,0,.7)}
+#quote .script{font-family:var(--font-script);font-size:30px;color:var(--gold);margin-bottom:6px;text-shadow:0 2px 12px rgba(0,0,0,.7);line-height:1.2}
 #quote .verse{font-family:var(--font-display);font-style:italic;font-size:20px;line-height:1.85;max-width:360px;margin:0 auto;color:var(--ink)}
 #quote .src{margin-top:18px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
 
@@ -205,11 +205,8 @@ section > *{width:100%}
   cursor:pointer;margin-top:4px;transition:background .25s;
 }
 .rsvp-form button:hover{background:var(--accent-red)}
-.wishes{max-width:340px;margin:32px auto 0;text-align:left;max-height:280px;overflow-y:auto}
-.wish{background:rgba(245,240,230,.07);border:1px solid var(--line-gold);border-radius:10px;padding:14px 16px;margin-bottom:11px}
-.wish .wn{font-family:var(--font-display);font-weight:600;font-size:18px;color:var(--cream)}
-.wish .wa{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin:2px 0 6px}
-.wish .wm{font-size:13.5px;color:var(--cream-soft)}
+.rsvp-note{color:var(--cream-soft);font-size:14px;margin:-6px auto 22px;max-width:300px}
+.rsvp-thanks{max-width:340px;margin:20px auto 0;font-family:var(--font-display);font-style:italic;font-size:16px;color:var(--gold);min-height:22px}
 
 /* ============================================================
    7. PENUTUP  (aksen: olive gelap — penutup senada cover)
@@ -258,7 +255,7 @@ section > *{width:100%}
   <!-- ============ 2. QUOTE ============ -->
   <section id="quote">
     <div class="reveal">
-      <div class="script">Bismillah</div>
+      <div class="script">Bismillahirrahmanirrahim</div>
       <div class="divider"></div>
       <!-- [EDIT] ayat / quote pembuka -->
       <p class="verse">Dan di antara tanda-tanda kekuasaan-Nya diciptakan-Nya untukmu pasangan hidup dari jenismu sendiri, supaya kamu mendapat ketenangan hati.</p>
@@ -345,7 +342,8 @@ section > *{width:100%}
   <section id="rsvp">
     <div class="reveal">
       <div class="eyebrow">Konfirmasi Kehadiran</div>
-      <h2 class="title">RSVP &amp; Ucapan</h2>
+      <h2 class="title">RSVP</h2>
+      <p class="rsvp-note">Mohon konfirmasi kehadiran Anda</p>
       <div class="rsvp-form">
         <div>
           <label>Nama</label>
@@ -354,18 +352,13 @@ section > *{width:100%}
         <div>
           <label>Kehadiran</label>
           <select id="rsvp-hadir">
-            <option value="Hadir">Insya Allah Hadir</option>
-            <option value="Ragu">Masih Ragu</option>
-            <option value="Tidak Hadir">Maaf, Berhalangan</option>
+            <option value="Hadir">Hadir</option>
+            <option value="Tidak Hadir">Tidak Hadir</option>
           </select>
         </div>
-        <div>
-          <label>Ucapan &amp; Doa</label>
-          <textarea id="rsvp-pesan" rows="3" placeholder="Tuliskan ucapan &amp; doa Anda..."></textarea>
-        </div>
-        <button onclick="submitRSVP()">Kirim Ucapan</button>
+        <button onclick="submitRSVP()">Kirim Konfirmasi</button>
       </div>
-      <div class="wishes" id="wishes"></div>
+      <div id="rsvp-thanks" class="rsvp-thanks"></div>
     </div>
   </section>
 
@@ -459,58 +452,32 @@ function toggleMusic(){
    ============================================================ */
 const RSVP_URL = "https://script.google.com/macros/s/AKfycbzid726nK73GqRw5HsJhpgLAgMmTWQoGzbJyWfEi5C_7AGojyTsbN2TuBpAnM9uvyVQ/exec";
 
-let wishes = [];   // kosong — tidak ada data contoh
-
-function renderWishes(){
-  const box = document.getElementById("wishes"); box.innerHTML="";
-  if(wishes.length===0){
-    box.innerHTML = '<div class="wish" style="text-align:center;opacity:.7"><div class="wm">Jadilah yang pertama memberikan ucapan &amp; doa 🤍</div></div>';
-    return;
-  }
-  wishes.forEach(w=>{
-    const el = document.createElement("div"); el.className="wish";
-    el.innerHTML = '<div class="wn"></div><div class="wa"></div><div class="wm"></div>';
-    el.querySelector(".wn").textContent = w.nama;
-    el.querySelector(".wa").textContent = w.hadir;
-    el.querySelector(".wm").textContent = w.pesan;
-    box.appendChild(el);
-  });
-}
-renderWishes();
-
-/* ambil ucapan yang sudah masuk dari Sheet */
-function loadWishes(){
-  if(RSVP_URL==="GANTI_DENGAN_URL") return;
-  fetch(RSVP_URL)
-    .then(r=>r.json())
-    .then(data=>{ if(Array.isArray(data)){ wishes = data.reverse(); renderWishes(); } })
-    .catch(()=>{});
-}
-loadWishes();
-
 function submitRSVP(){
   const nama = document.getElementById("rsvp-nama").value.trim();
   const hadir = document.getElementById("rsvp-hadir").value;
-  const pesan = document.getElementById("rsvp-pesan").value.trim();
   if(!nama){ alert("Mohon isi nama Anda."); return; }
 
   const btn = document.querySelector('.rsvp-form button');
-  const item = {nama, hadir, pesan: pesan||"—"};
+  // pesan tetap dikirim (kosong) agar kolom di Sheet tetap ada
+  const item = {nama, hadir, pesan: ""};
 
-  // tampilkan langsung (biar responsif) lalu simpan ke Sheet
-  wishes.unshift(item); renderWishes();
-  document.getElementById("rsvp-nama").value="";
-  document.getElementById("rsvp-pesan").value="";
+  const thanks = document.getElementById("rsvp-thanks");
+  const old = btn.textContent; btn.textContent = "Mengirim...";
 
   if(RSVP_URL!=="GANTI_DENGAN_URL"){
-    const old = btn.textContent; btn.textContent = "Mengirim...";
     fetch(RSVP_URL, {
       method:"POST",
       mode:"no-cors",
       headers:{ "Content-Type":"text/plain;charset=utf-8" },
       body: JSON.stringify(item)
-    }).then(()=>{ btn.textContent = "Terima Kasih 🤍"; setTimeout(()=>btn.textContent=old,1800); })
-      .catch(()=>{ btn.textContent = "Terima Kasih 🤍"; setTimeout(()=>btn.textContent=old,1800); });
+    }).then(()=>{ done(); }).catch(()=>{ done(); });
+  } else { done(); }
+
+  function done(){
+    btn.textContent = "Terima Kasih 🤍";
+    thanks.textContent = "Konfirmasi kehadiran Anda sudah kami terima. Terima kasih 🤍";
+    document.getElementById("rsvp-nama").value="";
+    setTimeout(()=>btn.textContent=old,2500);
   }
 }
 
