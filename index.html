@@ -356,6 +356,10 @@ section > *{width:100%}
             <option value="Tidak Hadir">Tidak Hadir</option>
           </select>
         </div>
+        <div>
+          <label>Ucapan &amp; Doa</label>
+          <textarea id="rsvp-pesan" rows="3" placeholder="Tuliskan ucapan &amp; doa Anda..."></textarea>
+        </div>
         <button onclick="submitRSVP()">Kirim Konfirmasi</button>
       </div>
       <div id="rsvp-thanks" class="rsvp-thanks"></div>
@@ -455,11 +459,11 @@ const RSVP_URL = "https://script.google.com/macros/s/AKfycbzid726nK73GqRw5HsJhpg
 function submitRSVP(){
   const nama = document.getElementById("rsvp-nama").value.trim();
   const hadir = document.getElementById("rsvp-hadir").value;
+  const pesan = document.getElementById("rsvp-pesan").value.trim();
   if(!nama){ alert("Mohon isi nama Anda."); return; }
 
   const btn = document.querySelector('.rsvp-form button');
-  // pesan tetap dikirim (kosong) agar kolom di Sheet tetap ada
-  const item = {nama, hadir, pesan: ""};
+  const item = {nama, hadir, pesan};   // ucapan masuk ke Sheet, tidak ditampilkan di undangan
 
   const thanks = document.getElementById("rsvp-thanks");
   const old = btn.textContent; btn.textContent = "Mengirim...";
@@ -477,6 +481,7 @@ function submitRSVP(){
     btn.textContent = "Terima Kasih 🤍";
     thanks.textContent = "Konfirmasi kehadiran Anda sudah kami terima. Terima kasih 🤍";
     document.getElementById("rsvp-nama").value="";
+    document.getElementById("rsvp-pesan").value="";
     setTimeout(()=>btn.textContent=old,2500);
   }
 }
